@@ -3,10 +3,17 @@ using UnityEngine;
 public class Spawner : MonoBehaviour
 {
     [SerializeField] GameObject coinPrefab;
+    [SerializeField] GameObject redCoinPrefab;
+    [SerializeField] GameObject blueCoinPrefab;
+
     [SerializeField] Transform player;
     [SerializeField] float interval = 1.5f;
     [SerializeField] int maxCoins = 5;
     [SerializeField] float area = 7f;
+    [SerializeField] int bonusCoinCount = 50;
+    [SerializeField] float bonusRadius = 3f;
+
+    bool redCoinSpawned = false;
 
     void Start() => InvokeRepeating(nameof(SpawnCoin), 1f, interval);
 
@@ -18,5 +25,33 @@ public class Spawner : MonoBehaviour
         Vector3 pos = new Vector3(x, 0.5f, z);
         if (Vector3.Distance(pos, player.position) < 2f) return;
         Instantiate(coinPrefab, pos, Quaternion.identity, transform);
+    }
+
+    public void SpawnRedCoin()
+    {
+        if (redCoinSpawned) return;
+
+        Vector3 pos;
+        do
+        {
+            float x = Random.Range(-area, area);
+            float z = Random.Range(-area, area);
+
+            pos = new Vector3(x, 0.5f, z);
+        }
+        while (Vector3.Distance(pos, player.position) < 2f);
+        
+        Instantiate(redCoinPrefab, pos, Quaternion.identity);
+        redCoinSpawned = true;
+    }
+
+    public void SpawnBlueCoins(Vector3 playerPosition)
+    {
+        for (int i = 0; i < bonusCoinCount; i++)
+        {
+            Vector2 randomPoint = Random.insideUnitCircle * bonusRadius;
+            Vector3 pos = new Vector3(playerPosition.x + randomPoint.x, 0.5f, playerPosition.z + randomPoint.y);
+            Instantiate(blueCoinPrefab, pos, Quaternion.identity);
+        }
     }
 }
