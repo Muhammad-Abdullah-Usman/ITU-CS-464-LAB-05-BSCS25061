@@ -114,7 +114,7 @@ CapsuleCollider:
   m_Radius: 0.5000001
   m_Height: 2
   m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &3019668517194388687
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -127,3 +127,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1774cca28d55694fae88ea127e3b6cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Coin
+  coinType: 0
+  value: 1
+  spinSpeed: 90

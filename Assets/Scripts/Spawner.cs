@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using UnityEngine;
 
 public class Spawner : MonoBehaviour
@@ -11,7 +13,7 @@ public class Spawner : MonoBehaviour
     [SerializeField] int maxCoins = 5;
     [SerializeField] float area = 7f;
     [SerializeField] int bonusCoinCount = 50;
-    [SerializeField] float bonusRadius = 3f;
+    [SerializeField] float bonusRadius = 2.5f;
 
     bool redCoinSpawned = false;
 
@@ -20,11 +22,11 @@ public class Spawner : MonoBehaviour
     void SpawnCoin()
     {
         if (transform.childCount >= maxCoins) return;
-        float x = Random.Range(-area, area);
-        float z = Random.Range(-area, area);
+        float x = UnityEngine.Random.Range(-area, area);
+        float z = UnityEngine.Random.Range(-area, area);
         Vector3 pos = new Vector3(x, 0.5f, z);
         if (Vector3.Distance(pos, player.position) < 2f) return;
-        Instantiate(coinPrefab, pos, Quaternion.identity, transform);
+        Instantiate(coinPrefab, pos, coinPrefab.transform.rotation, transform); // removed quaternion.identity in favour of coinprefab.transform.rotation so customised oration is evident
     }
 
     public void SpawnRedCoin()
@@ -34,40 +36,47 @@ public class Spawner : MonoBehaviour
         Vector3 pos;
         do
         {
-            float x = Random.Range(-area, area);
-            float z = Random.Range(-area, area);
+            float x = UnityEngine.Random.Range(-area, area);
+            float z = UnityEngine.Random.Range(-area, area);
 
             pos = new Vector3(x, 0.5f, z);
         }
         while (Vector3.Distance(pos, player.position) < 2f);
         
-        Instantiate(redCoinPrefab, pos, Quaternion.identity);
+        Instantiate(redCoinPrefab, pos, redCoinPrefab.transform.rotation);
         redCoinSpawned = true;
     }
 
     public void SpawnBlueCoins(Vector3 playerPosition)
     {
-        int rings = 5;
-        int coinsPerRing = bonusCoinCount / rings;
-        float minRadius = 1f;
-        
-        for (int ring = 0; ring < rings; ring++)
+        StartCoroutine(SpawnBlueCoinsRoutine(playerPosition));
+    }
+
+    IEnumerator SpawnBlueCoinsRoutine(Vector3 playerPosition)
+    {
+        Vector3 center = playerPosition;
+
+        // keep bonus area inside the arena
+        center.x = Mathf.Clamp(center.x, -area + bonusRadius, area - bonusRadius);
+        center.z = Mathf.Clamp(center.z, -area + bonusRadius, area - bonusRadius);
+
+        for (int i = 0; i < bonusCoinCount; i++)
         {
-            float radius = Mathf.Lerp(minRadius, bonusRadius, ring / (float)(rings - 1));
+            float t = (i + 1f) / bonusCoinCount;
+            
+            // even distirbution through a circular area
+            float radius = Mathf.Sqrt(t) * bonusRadius;
+            float angle = i * 137.5f * Mathf.Deg2Rad;
 
-            for (int i = 0; i <  coinsPerRing; i++)
+            Vector3 pos = new Vector3(center.x + Mathf.Cos(angle) * radius,
+                0.5f, center.z + Mathf.Sin(angle) * radius);
+
+            Instantiate(blueCoinPrefab, pos, blueCoinPrefab.transform.rotation);
+
+            // Five coins per frame
+            if ((i + 1) % 5 == 0)
             {
-                float angle = i * Mathf.PI * 2f / coinsPerRing;
-
-                // offset alternate rings
-                if (ring % 2 == 2)
-                {
-                    angle += Mathf.PI / coinsPerRing;
-                }
-
-                Vector3 pos = new Vector3(playerPosition.x + Mathf.Cos(angle) * radius,
-                    0.5f, playerPosition.z + Mathf.Sin(angle) * radius);
-                Instantiate(blueCoinPrefab, pos, Quaternion.identity);
+                yield return null;
             }
         }
     }
