@@ -47,11 +47,28 @@ public class Spawner : MonoBehaviour
 
     public void SpawnBlueCoins(Vector3 playerPosition)
     {
-        for (int i = 0; i < bonusCoinCount; i++)
+        int rings = 5;
+        int coinsPerRing = bonusCoinCount / rings;
+        float minRadius = 1f;
+        
+        for (int ring = 0; ring < rings; ring++)
         {
-            Vector2 randomPoint = Random.insideUnitCircle * bonusRadius;
-            Vector3 pos = new Vector3(playerPosition.x + randomPoint.x, 0.5f, playerPosition.z + randomPoint.y);
-            Instantiate(blueCoinPrefab, pos, Quaternion.identity);
+            float radius = Mathf.Lerp(minRadius, bonusRadius, ring / (float)(rings - 1));
+
+            for (int i = 0; i <  coinsPerRing; i++)
+            {
+                float angle = i * Mathf.PI * 2f / coinsPerRing;
+
+                // offset alternate rings
+                if (ring % 2 == 2)
+                {
+                    angle += Mathf.PI / coinsPerRing;
+                }
+
+                Vector3 pos = new Vector3(playerPosition.x + Mathf.Cos(angle) * radius,
+                    0.5f, playerPosition.z + Mathf.Sin(angle) * radius);
+                Instantiate(blueCoinPrefab, pos, Quaternion.identity);
+            }
         }
     }
 }

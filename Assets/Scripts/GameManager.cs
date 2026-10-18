@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-    [SerializeField] int targetScore = 10;
+    [SerializeField] int targetScore = 20;
     [SerializeField] TMP_Text scoreText;
     [SerializeField] TMP_Text bonusCoinsText;
     [SerializeField] GameObject winPanel;
